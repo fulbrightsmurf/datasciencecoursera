@@ -1,0 +1,71 @@
+# Title: FY17 IT Metrics Comparison
+# Date: July 1, 2017
+# Author(s): Danielle Boyd
+
+
+# Clear working memory
+rm(list = ls())
+
+# Set Working directory as applicable to your file locations
+getwd()
+setwd("Deliverables/IT Metrics/FY17")
+
+# Required Packages 
+library(ggmap) #  Required to pull in maps and use geocode.  ggplot2 is also required but will load with ggmap
+library(Hmisc) #  Required for the describe function.
+library(dplyr) # Required to use pipes "%>%" for pivoting
+library(reshape2) # Required to use dcast
+library(data.table) #Needed for rbind, unique,and duplicated functions
+library(ggmap) #  Required to pull in maps and use geocode.  ggplot2 is also required but will load with ggmap
+library(xlsx) # Required to Export Table to Excel
+
+# Read in file and inspect
+## col.names is used because the csv file has no headers
+PP1<- read.csv("10152016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP2<- read.csv("10292016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP3<- read.csv("11122016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP4<- read.csv("11262016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP5<- read.csv("12102016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP6<- read.csv("12242016.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP7<- read.csv("01072017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP8<- read.csv("01212017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP9<- read.csv("02042017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP10<- read.csv("02182017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP11<- read.csv("03042017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP12<- read.csv("03182017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP13<- read.csv("04012017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP14<- read.csv("04152017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP15<- read.csv("04292017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP16<- read.csv("05132017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP17<- read.csv("05272017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP18<- read.csv("06102017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+PP19<- read.csv("06242017.csv", colClasses = c("character")) # A separate file is provided for each pay period.
+
+#describe()
+#str()
+#head()
+
+All_FY17 <- rbind(PP1,PP2,PP3,PP4,PP5,PP6,PP7,PP8,PP9,PP10,PP11,PP12,PP13,PP14,PP15,PP16,PP17,PP18,PP19)
+All_FY17$Pay.Period.End.Date <- as.Date(All_FY17$Pay.Period.End.Date,format = "%m/%d/%Y")
+
+names(All_FY17)
+for (i in 3:98) {
+All_FY17[,i] <- as.numeric(All_FY17[,i])
+}
+
+for (i in seq(5,98,3)) {
+All_FY17[,i] <- All_FY17[,i-1]/All_FY17[,i-2]  
+}
+
+# Import File with NEC seat counts and locations
+Seat_Counts <- read.csv("NEC_Seats_Locations.csv", colClasses = c("character"))
+
+#Reformat vectors
+Seat_Counts$FY15.Seat.Counts <- as.numeric(Seat_Counts$FY15.Seat.Counts)
+Seat_Counts$lon <- as.numeric(Seat_Counts$lon)
+Seat_Counts$lat <- as.numeric(Seat_Counts$lat)
+
+#Merge by nec name
+
+All_FY17 <- merge(x = All_FY17,y = Seat_Counts, by.x = "nec", by.y = "nec", all.x = T)
+names(All_FY17)
